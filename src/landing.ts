@@ -15,7 +15,7 @@ export function landingPage() {
       --background: 20 14% 4%;
       --foreground: 38 28% 94%;
       --muted: 24 10% 13%;
-      --muted-foreground: 35 10% 64%;
+      --muted-foreground: 35 12% 72%;
       --card: 24 13% 8%;
       --card-foreground: 38 28% 94%;
       --border: 28 10% 18%;
@@ -50,7 +50,7 @@ export function landingPage() {
     .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
     .button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 18px; border-radius: 999px; border: 1px solid hsl(var(--border)); font-size: 14px; font-weight: 650; transition: transform .18s ease, border-color .18s ease, background .18s ease; }
     .button:hover { transform: translateY(-1px); border-color: hsl(var(--primary) / .7); }
-    .button.primary { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border-color: transparent; box-shadow: 0 10px 40px rgba(249,115,22,.22); }
+    .button.primary { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border-color: transparent; box-shadow: 0 10px 34px rgba(249,115,22,.18); }
     .card { border: 1px solid hsl(var(--border)); background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.025)); border-radius: var(--radius); box-shadow: 0 24px 80px rgba(0,0,0,.28); }
     .terminal { overflow: hidden; }
     .terminalbar { display: flex; gap: 7px; padding: 14px 16px; border-bottom: 1px solid hsl(var(--border)); }
@@ -65,7 +65,10 @@ export function landingPage() {
     .flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 20px; }
     .step { min-height: 92px; padding: 16px; border-radius: 16px; background: hsl(var(--muted)); border: 1px solid hsl(var(--border)); }
     .step span { display: block; color: hsl(var(--primary)); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
-    .code { padding: 14px 16px; border-radius: 14px; background: rgba(0,0,0,.34); border: 1px solid hsl(var(--border)); color: #fed7aa; font: 13px/1.6 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; overflow: auto; }
+    .code { flex: 1; min-width: 0; padding: 14px 16px; color: #fed7aa; font: 13px/1.6 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; overflow: auto; }
+    .command { display: flex; align-items: stretch; gap: 8px; border-radius: 14px; background: rgba(0,0,0,.34); border: 1px solid hsl(var(--border)); overflow: hidden; }
+    .copy { border: 0; border-left: 1px solid hsl(var(--border)); padding: 0 14px; background: rgba(255,255,255,.04); color: hsl(var(--muted-foreground)); font-weight: 650; cursor: pointer; }
+    .copy:hover { color: hsl(var(--foreground)); background: rgba(255,255,255,.07); }
     footer { padding: 42px 0 60px; color: hsl(var(--muted-foreground)); font-size: 14px; }
     @media (max-width: 860px) { .hero, .grid, .flow { grid-template-columns: 1fr; } .navlinks { display: none; } .hero { padding-top: 36px; } }
   </style>
@@ -127,14 +130,24 @@ payment-required: eyJ4NDAyVmVyc2lvbiI...
     <section id="try" class="card section">
       <h2>Try the deployed API.</h2>
       <p>Production is hosted on Vercel. No VPS address is embedded in the repo or demo.</p>
-      <div class="code">curl ${apiBase}/health</div>
+      <div class="command"><div class="code">curl ${apiBase}/health</div><button class="copy" data-copy="curl ${apiBase}/health">Copy</button></div>
       <br />
-      <div class="code">curl -i '${apiBase}/quote?sell=USDC&amp;buy=WETH&amp;amount=1'</div>
+      <div class="command"><div class="code">curl -i '${apiBase}/quote?sell=USDC&amp;buy=WETH&amp;amount=1'</div><button class="copy" data-copy="curl -i '${apiBase}/quote?sell=USDC&buy=WETH&amount=1'">Copy</button></div>
       <br />
-      <div class="code">curl -H 'x-payment: demo-paid' '${apiBase}/quote?sell=USDC&amp;buy=WETH&amp;amount=1'</div>
+      <div class="command"><div class="code">curl -H 'x-payment: demo-paid' '${apiBase}/quote?sell=USDC&amp;buy=WETH&amp;amount=1'</div><button class="copy" data-copy="curl -H 'x-payment: demo-paid' '${apiBase}/quote?sell=USDC&buy=WETH&amount=1'">Copy</button></div>
     </section>
   </main>
   <footer class="container">Built for OpenAgents. Small surface area, honest demo mode, clean upgrade path to live x402 settlement.</footer>
+  <script>
+    for (const button of document.querySelectorAll('.copy')) {
+      button.addEventListener('click', async () => {
+        await navigator.clipboard.writeText(button.dataset.copy || '');
+        const label = button.textContent;
+        button.textContent = 'Copied';
+        setTimeout(() => { button.textContent = label; }, 1200);
+      });
+    }
+  </script>
 </body>
 </html>`;
 }
