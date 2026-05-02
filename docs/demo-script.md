@@ -12,10 +12,11 @@ curl -i "$AGENTPAY_BASE_URL/quote?sell=USDC&buy=WETH&amount=1"
 
 Point out `402 Payment Required`.
 
-3. Show paid request:
+3. Show paid request locally or against the Vercel deployment:
 
 ```bash
-curl -H 'x-payment: demo-paid' "$AGENTPAY_BASE_URL/quote?sell=USDC&buy=WETH&amount=1"
+curl -H 'x-payment: demo-paid' 'http://localhost:3000/quote?sell=USDC&buy=WETH&amount=1'
+curl -H 'x-payment: demo-paid' 'https://agentpay-router-zeta.vercel.app/quote?sell=USDC&buy=WETH&amount=1'
 ```
 
 Point out live Base quote data.

@@ -11,6 +11,13 @@ AgentPay Router is a tiny OpenAgents hackathon submission: an x402-style paid HT
 - `npm run demo` — screen-recordable flow: request → 402 → paid quote → KeeperHub handoff.
 - Vercel-first deploy — no VPS IPs or private infra in the public repo.
 
+## Live deployment
+
+- Production API: https://agentpay-router-zeta.vercel.app
+- Public repo: https://github.com/baseddesigner/agentpay-router
+
+No VPS address is embedded in the repo or deployment. The public demo runs from a fresh Vercel project.
+
 ## Demo
 
 ```bash
@@ -18,18 +25,18 @@ npm install
 npm run demo
 ```
 
-Use a deployed Vercel URL:
+Use the deployed Vercel URL:
 
 ```bash
-AGENTPAY_BASE_URL=https://your-project.vercel.app npm run demo
+AGENTPAY_BASE_URL=https://agentpay-router-zeta.vercel.app npm run demo
 ```
 
 Manual checks:
 
 ```bash
-curl https://your-project.vercel.app/health
-curl -i 'https://your-project.vercel.app/quote?sell=USDC&buy=WETH&amount=1'
-curl -H 'x-payment: demo-paid' 'https://your-project.vercel.app/quote?sell=USDC&buy=WETH&amount=1'
+curl https://agentpay-router-zeta.vercel.app/health
+curl -i 'https://agentpay-router-zeta.vercel.app/quote?sell=USDC&buy=WETH&amount=1'
+curl -H 'x-payment: demo-paid' 'https://agentpay-router-zeta.vercel.app/quote?sell=USDC&buy=WETH&amount=1'
 ```
 
 ## API
