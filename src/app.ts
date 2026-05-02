@@ -5,6 +5,7 @@ import { createQuotePaymentMiddleware, type PaymentReceipt } from './x402.js';
 import { prepareKeeperHubExecution } from './keeperhub.js';
 import { writeAudit } from './audit.js';
 import { landingPage } from './landing.js';
+import { openApiSpec } from './openapi.js';
 
 declare module 'hono' {
   interface ContextVariableMap {
@@ -21,8 +22,10 @@ app.get('/', (c) => c.html(landingPage()));
 app.get('/api', (c) => c.json({
   name: 'AgentPay Router',
   pitch: 'Agents do not need API keys. They need HTTP services they can pay for at request time.',
-  endpoints: ['/health', '/quote', '/keeperhub/prepare-execution'],
+  endpoints: ['/health', '/quote', '/keeperhub/prepare-execution', '/openapi.json'],
 }));
+
+app.get('/openapi.json', (c) => c.json(openApiSpec()));
 
 app.get('/health', (c) => c.json({ ok: true, service: 'agentpay-router', network: 'base', timestamp: new Date().toISOString() }));
 

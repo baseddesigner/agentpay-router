@@ -80,6 +80,7 @@ export function landingPage() {
       <div class="navlinks">
         <a href="#flow">Flow</a>
         <a href="#try">Try it</a>
+        <a href="#examples">Examples</a>
         <a href="https://github.com/baseddesigner/agentpay-router">GitHub</a>
       </div>
     </nav>
@@ -135,6 +136,16 @@ payment-required: eyJ4NDAyVmVyc2lvbiI...
       <div class="command"><div class="code">curl -i '${apiBase}/quote?sell=USDC&amp;buy=WETH&amp;amount=1'</div><button class="copy" data-copy="curl -i '${apiBase}/quote?sell=USDC&buy=WETH&amount=1'">Copy</button></div>
       <br />
       <div class="command"><div class="code">curl -H 'x-payment: demo-paid' '${apiBase}/quote?sell=USDC&amp;buy=WETH&amp;amount=1'</div><button class="copy" data-copy="curl -H 'x-payment: demo-paid' '${apiBase}/quote?sell=USDC&buy=WETH&amount=1'">Copy</button></div>
+    </section>
+    <section id="examples" class="card section">
+      <h2>Examples agents can copy.</h2>
+      <p>Three concrete calls cover the full demo narrative: unpaid request, paid quote, and KeeperHub execution handoff.</p>
+      <br />
+      <div class="command"><div class="code">GET /quote → 402 Payment Required</div><button class="copy" data-copy="curl -i '${apiBase}/quote?sell=USDC&buy=WETH&amount=1'">Copy</button></div>
+      <br />
+      <div class="command"><div class="code">GET /quote with x-payment → live Base quote</div><button class="copy" data-copy="curl -H 'x-payment: demo-paid' '${apiBase}/quote?sell=USDC&buy=WETH&amount=1'">Copy</button></div>
+      <br />
+      <div class="command"><div class="code">POST /keeperhub/prepare-execution → policy-checked handoff</div><button class="copy" data-copy='curl -X POST ${apiBase}/keeperhub/prepare-execution -H "content-type: application/json" -d "{\"wallet\":\"0x0000000000000000000000000000000000000000\",\"quoteRequest\":{\"sell\":\"USDC\",\"buy\":\"WETH\",\"amount\":1},\"policy\":{\"maxUsd\":5000,\"maxSlippageBps\":100}}"'>Copy</button></div>
     </section>
   </main>
   <footer class="container">Built for OpenAgents. Small surface area, honest demo mode, clean upgrade path to live x402 settlement.</footer>
