@@ -141,8 +141,13 @@ payment-required: eyJ4NDAyVmVyc2lvbiI...
   <script>
     async function copyText(text) {
       if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(text);
-        return;
+        try {
+          await navigator.clipboard.writeText(text);
+          return;
+        } catch (_error) {
+          // Browser automation and some embedded contexts deny clipboard even on HTTPS.
+          // Fall through to the old-school selected textarea path.
+        }
       }
       const area = document.createElement('textarea');
       area.value = text;
