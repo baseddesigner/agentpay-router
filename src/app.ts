@@ -4,6 +4,7 @@ import { getLiveQuote } from './quote.js';
 import { createQuotePaymentMiddleware, type PaymentReceipt } from './x402.js';
 import { prepareKeeperHubExecution } from './keeperhub.js';
 import { writeAudit } from './audit.js';
+import { landingPage } from './landing.js';
 
 declare module 'hono' {
   interface ContextVariableMap {
@@ -15,7 +16,9 @@ export const app = new Hono();
 
 app.use('*', cors({ origin: '*', allowHeaders: ['Content-Type', 'X-Payment'], allowMethods: ['GET', 'POST', 'OPTIONS'] }));
 
-app.get('/', (c) => c.json({
+app.get('/', (c) => c.html(landingPage()));
+
+app.get('/api', (c) => c.json({
   name: 'AgentPay Router',
   pitch: 'Agents do not need API keys. They need HTTP services they can pay for at request time.',
   endpoints: ['/health', '/quote', '/keeperhub/prepare-execution'],

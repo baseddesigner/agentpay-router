@@ -6,6 +6,7 @@ AgentPay Router is a tiny OpenAgents hackathon submission: an x402-style paid HT
 
 ## What it does
 
+- `GET /` — shadcn-inspired landing page for judges and manual upload review.
 - `GET /quote` — returns live Base USDC/WETH quote data after payment.
 - `POST /keeperhub/prepare-execution` — turns the quote into a KeeperHub-ready handoff with policy checks.
 - `npm run demo` — screen-recordable flow: request → 402 → paid quote → KeeperHub handoff.
