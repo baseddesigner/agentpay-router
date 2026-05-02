@@ -29,6 +29,9 @@ describe('AgentPay Router app', () => {
     expect(spec.components.schemas.HandoffRequest.required).toContain('quote');
     expect(spec.components.schemas.HandoffRequest.properties.quoteRequest).toBeUndefined();
     expect(spec.components.schemas.HandoffResponse.properties.policyChecks).toBeTruthy();
+    expect(spec.components.schemas.HandoffResponse.required).toContain('wallet');
+    expect(spec.components.schemas.HandoffRequest.properties.wallet.description).toContain('ENS name');
+    expect(spec.components.schemas.HandoffResponse.properties.wallet.properties.ensName).toBeTruthy();
     expect(spec.components.schemas.HandoffResponse.properties.policy).toBeUndefined();
   });
 
@@ -79,6 +82,7 @@ describe('AgentPay Router app', () => {
       sell: 'USDC',
       buy: 'CBBTC',
       handoffHash: json.handoffHash,
+      wallet: json.wallet,
     });
   });
 

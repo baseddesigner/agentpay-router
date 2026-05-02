@@ -19,6 +19,7 @@ agent / CLI
 - **Payment gate**: x402-compatible response shape for demo mode; real facilitator verification can replace `src/x402.ts` without changing routes.
 - **Quote source**: DexScreener live Base cbBTC/USDC market data for the hero demo, with WETH support still available.
 - **Policy engine**: deterministic allowlist/notional/slippage checks.
+- **ENS resolver**: human-readable handoff wallet inputs such as `baseddesigner.eth` resolve to EVM addresses before the KeeperHub payload preview is built.
 - **KeeperHub handoff preview**: structured payload preview for a future direct execution or workflow webhook. It deliberately stops before signing or submitting live transactions.
 - **Audit summary**: local/serverless audit JSON is written, and a compact summary is returned inline so Vercel demos are reviewable.
 

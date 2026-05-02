@@ -20,7 +20,7 @@ AgentPay Router is an HTTP-native payment gateway for autonomous agents.
 
 Today, most API products assume a human signs up, manages keys, chooses a subscription, and pays through a dashboard. Agents need a smaller primitive: make a request, receive a price, pay for that request, and continue.
 
-AgentPay Router demonstrates that loop with a live deployed API. An agent requests a Base market quote, receives `402 Payment Required`, retries with payment, and gets live USDC → cbBTC market data using the real Base cbBTC contract. The paid quote can then be sent to a KeeperHub handoff endpoint, which validates the quote, runs policy checks, and returns a handoff preview plus inline audit summary.
+AgentPay Router demonstrates that loop with a live deployed API. An agent requests a Base market quote, receives `402 Payment Required`, retries with payment, and gets live USDC → cbBTC market data using the real Base cbBTC contract. The paid quote can then be sent to a KeeperHub handoff endpoint with a raw EVM address or ENS name such as `baseddesigner.eth`; ENS resolves before the payload preview is built. The endpoint validates the quote, runs policy checks, and returns a handoff preview plus inline audit summary.
 
 The project is intentionally narrow: it is not a full trading bot and does not pretend to hold production signing keys. The core product is the paid HTTP rail between autonomous software and useful onchain services.
 
@@ -31,6 +31,7 @@ The project is intentionally narrow: it is not a full trading bot and does not p
 - Accepts a demo payment header for reproducible review.
 - Returns live Base cbBTC market data after payment.
 - Requires a paid quote object before KeeperHub handoff.
+- Resolves ENS wallet inputs before KeeperHub handoff.
 - Runs policy checks before handoff.
 - Returns a deterministic handoff hash receipt.
 - Returns an inline audit summary.
@@ -66,6 +67,7 @@ curl -H 'x-payment: demo-paid' 'https://agentpay-router-zeta.vercel.app/quote?se
 - Base
 - cbBTC
 - DexScreener market data
+- ENS
 - KeeperHub handoff preview
 - OpenAPI
 - Vitest
@@ -79,6 +81,7 @@ Real:
 - Paid quote object required for handoff.
 - Strict quote validation.
 - Policy checks.
+- ENS wallet input resolution.
 - KeeperHub payload preview.
 - Deterministic `handoffHash` receipt. This is not an onchain transaction hash.
 - Inline audit summary.
@@ -92,7 +95,7 @@ Demo/review mode:
 
 Use this for any x402 / agent commerce / onchain automation / KeeperHub-aligned prize fields:
 
-AgentPay Router focuses on the smallest useful commerce primitive for agents: paid HTTP requests. The x402-style flow makes price and payment legible at the protocol/API boundary, while the KeeperHub handoff preview shows how a paid result can move toward execution without handing signing authority to an unsafe demo.
+AgentPay Router focuses on the smallest useful commerce primitive for agents: paid HTTP requests. The x402-style flow makes price and payment legible at the protocol/API boundary, ENS makes the handoff wallet human-readable for agents and reviewers, and the KeeperHub handoff preview shows how a paid result can move toward execution without handing signing authority to an unsafe demo.
 
 ## Final Pre-Submit Checklist
 

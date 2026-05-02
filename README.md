@@ -9,7 +9,7 @@ AgentPay Router is a tiny OpenAgents hackathon submission: an x402-style paid HT
 - `GET /` — shadcn-inspired landing page for judges and manual upload review.
 - `GET /openapi.json` — machine-readable OpenAPI spec for agents and judges.
 - `GET /quote` — returns live Base WETH or cbBTC market data after payment.
-- `POST /keeperhub/prepare-execution` — consumes the paid quote object from `/quote` and returns a KeeperHub handoff preview with policy checks.
+- `POST /keeperhub/prepare-execution` — consumes the paid quote object from `/quote` and returns a KeeperHub handoff preview with policy checks. Wallet input can be a raw EVM address or ENS name.
 - `npm run demo` — screen-recordable flow: request → 402 → paid quote → KeeperHub handoff preview.
 - Vercel-first deploy — no VPS IPs or private infra in the public repo.
 
@@ -48,7 +48,7 @@ curl -i 'https://agentpay-router-zeta.vercel.app/quote?sell=USDC&buy=0xcbB7C0000
 QUOTE=$(curl -s -H 'x-payment: demo-paid' 'https://agentpay-router-zeta.vercel.app/quote?sell=USDC&buy=CBBTC&amount=100')
 curl -X POST https://agentpay-router-zeta.vercel.app/keeperhub/prepare-execution \
   -H 'content-type: application/json' \
-  -d "{\"wallet\":\"0x0000000000000000000000000000000000000000\",\"quote\":$QUOTE,\"policy\":{\"maxUsd\":5000,\"maxSlippageBps\":100}}"
+  -d "{\"wallet\":\"baseddesigner.eth\",\"quote\":$QUOTE,\"policy\":{\"maxUsd\":5000,\"maxSlippageBps\":100}}"
 ```
 
 ## API
@@ -69,11 +69,11 @@ Without payment it returns `402` with a `Payment-Required` header. In demo mode,
 
 ### `POST /keeperhub/prepare-execution`
 
-The handoff endpoint intentionally consumes the paid quote object returned by `/quote`. It does not accept a raw `quoteRequest`, because that would bypass the paid quote endpoint.
+The handoff endpoint intentionally consumes the paid quote object returned by `/quote`. It does not accept a raw `quoteRequest`, because that would bypass the paid quote endpoint. `wallet` accepts either a raw EVM address or an ENS name; ENS names resolve to an EVM address before the KeeperHub payload preview is built.
 
 ```json
 {
-  "wallet": "0x0000000000000000000000000000000000000000",
+  "wallet": "baseddesigner.eth",
   "quote": {
     "payment": { "status": "settled", "mode": "demo" },
     "id": "quote_example",
@@ -106,6 +106,7 @@ Real:
 - Hono API deployed on Vercel.
 - Live Base cbBTC market data.
 - HTTP `402 Payment Required` behavior for unpaid requests.
+- ENS wallet input resolution for handoff previews.
 - Handoff requires a paid quote object, not a free quote request.
 - Policy checks before KeeperHub handoff preview.
 - Deterministic `handoffHash` receipt. This is not an onchain transaction hash.

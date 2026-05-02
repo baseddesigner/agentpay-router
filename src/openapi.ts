@@ -92,7 +92,7 @@ export function openApiSpec() {
                 examples: {
                   paidCbbtcQuote: {
                     value: {
-                      wallet: '0x0000000000000000000000000000000000000000',
+                      wallet: 'baseddesigner.eth',
                       quote: {
                         payment: { status: 'settled', mode: 'demo', amountUsd: 0.001 },
                         id: 'quote_example',
@@ -209,7 +209,11 @@ export function openApiSpec() {
           type: 'object',
           required: ['wallet', 'quote'],
           properties: {
-            wallet: { type: 'string', pattern: '^0x[a-fA-F0-9]{40}$' },
+            wallet: {
+              type: 'string',
+              description: 'Agent wallet address or ENS name. ENS names resolve to an EVM address before KeeperHub handoff preview generation.',
+              examples: ['baseddesigner.eth', '0x0000000000000000000000000000000000000000'],
+            },
             quote: { $ref: '#/components/schemas/PaidQuote' },
             policy: {
               type: 'object',
@@ -224,7 +228,7 @@ export function openApiSpec() {
         },
         HandoffResponse: {
           type: 'object',
-          required: ['status', 'handoffHash', 'handoffReceipt', 'quote', 'policyChecks', 'keeperhub', 'audit'],
+          required: ['status', 'handoffHash', 'handoffReceipt', 'quote', 'wallet', 'policyChecks', 'keeperhub', 'audit'],
           properties: {
             status: { type: 'string', enum: ['ready_for_keeperhub', 'blocked_by_policy'] },
             handoffHash: {
@@ -242,6 +246,15 @@ export function openApiSpec() {
               },
             },
             quote: { $ref: '#/components/schemas/MarketQuote' },
+            wallet: {
+              type: 'object',
+              required: ['input', 'address'],
+              properties: {
+                input: { type: 'string', examples: ['baseddesigner.eth'] },
+                address: { type: 'string', pattern: '^0x[a-fA-F0-9]{40}$' },
+                ensName: { type: 'string', examples: ['baseddesigner.eth'] },
+              },
+            },
             policyChecks: {
               type: 'array',
               items: {

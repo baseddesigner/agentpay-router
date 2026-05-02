@@ -25,7 +25,7 @@ program
 program
   .command('prepare')
   .option('--base-url <url>', 'router URL', process.env.AGENTPAY_BASE_URL ?? 'http://localhost:3000')
-  .option('--wallet <address>', 'agent wallet', '0x0000000000000000000000000000000000000000')
+  .option('--wallet <address-or-ens>', 'agent wallet address or ENS name', '0x0000000000000000000000000000000000000000')
   .option('--amount <amount>', 'USDC notional', '100')
   .action(async (opts) => {
     const quoteUrl = new URL('/quote', opts.baseUrl);

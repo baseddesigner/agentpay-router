@@ -2,10 +2,11 @@ import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { paidQuoteResponseSchema, tokenAddress, type QuoteResponse } from './quote.js';
 import { evaluatePolicy } from './policy.js';
+import { resolveWallet, type EnsResolver } from './ens.js';
 
 export const prepareExecutionSchema = z
   .object({
-    wallet: z.string().regex(/^0x[a-fA-F0-9]{40}$/).default('0x0000000000000000000000000000000000000000'),
+    wallet: z.string().min(1).default('0x0000000000000000000000000000000000000000'),
     quote: paidQuoteResponseSchema,
     quoteRequest: z.never({ error: 'Handoff requires the paid quote returned by /quote; quoteRequest would bypass payment.' }).optional(),
     policy: z.any().optional(),
@@ -28,15 +29,22 @@ function handoffHashFor(input: unknown) {
   return `0x${createHash('sha256').update(JSON.stringify(stable(input))).digest('hex')}`;
 }
 
-export async function prepareKeeperHubExecution(input: unknown) {
+export async function prepareKeeperHubExecution(input: unknown, ensResolver?: EnsResolver) {
   const parsed = prepareExecutionSchema.parse(input ?? {});
+  const resolvedWallet = await resolveWallet(parsed.wallet, ensResolver);
   const quote = parsed.quote as QuoteResponse;
   const policyResult = evaluatePolicy(quote, parsed.policy ?? {});
   const slippageBps = policyResult.policy.maxSlippageBps;
 
+  const wallet = {
+    input: parsed.wallet,
+    address: resolvedWallet.address,
+    ...(resolvedWallet.ensName ? { ensName: resolvedWallet.ensName } : {}),
+  };
+
   const payloadPreview = {
     network: 'base',
-    owner: parsed.wallet,
+    owner: wallet.address,
     sellToken: { symbol: quote.sell, address: tokenAddress(quote.sell) },
     buyToken: { symbol: quote.buy, address: tokenAddress(quote.buy) },
     amountIn: quote.amount,
@@ -58,6 +66,7 @@ export async function prepareKeeperHubExecution(input: unknown) {
     version: 'agentpay-router-handoff-v1',
     status,
     quote,
+    wallet,
     policyChecks: policyResult.checks,
     keeperhub,
   });
@@ -71,6 +80,7 @@ export async function prepareKeeperHubExecution(input: unknown) {
       note: 'This is not an onchain transaction hash. It is a deterministic receipt for the paid quote, policy checks, and KeeperHub payload preview.',
     },
     quote,
+    wallet,
     policyChecks: policyResult.checks,
     keeperhub,
   };

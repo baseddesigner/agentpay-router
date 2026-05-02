@@ -11,7 +11,7 @@ Target length: 2:45–3:15. Export minimum: 720p. Audio: voice only, no music.
 - Use deployed URL for credibility:
 
 ```bash
-cd /root/agentpay-router
+# from the project directory
 AGENTPAY_BASE_URL=https://agentpay-router-zeta.vercel.app npm run demo
 ```
 
@@ -79,14 +79,14 @@ AGENTPAY_BASE_URL=https://agentpay-router-zeta.vercel.app npm run demo
 ```
 
 Voice:
-> The full flow is request, 402, paid quote, then KeeperHub handoff. The handoff endpoint does not accept a free quote request. It consumes the paid quote object, validates it, runs policy checks, and returns a KeeperHub payload preview, a deterministic handoff hash, and an inline audit summary. This handoff hash is not an onchain transaction hash; it is the receipt for exactly what the agent paid for and what would be handed to execution.
+> The full flow is request, 402, paid quote, then KeeperHub handoff. The handoff endpoint accepts a readable ENS wallet like baseddesigner.eth, resolves it to an EVM address, and then consumes the paid quote object. It validates the quote, runs policy checks, and returns a KeeperHub payload preview, a deterministic handoff hash, and an inline audit summary. This handoff hash is not an onchain transaction hash; it is the receipt for exactly what the agent paid for and what would be handed to execution.
 
 Point at:
 - `ready_for_keeperhub`
 - `handoffHash`
 - `handoffReceipt.note`
 - `policyChecks`
-- `payloadPreview`
+- ENS wallet resolution visible if using `baseddesigner.eth`.
 - `audit.summary`
 
 ### 2:50–3:15 — Close
@@ -101,6 +101,7 @@ Voice:
 - AgentPay Router is a product, not a trading bot.
 - Payment is per request via an x402-style 402 flow.
 - The quote uses real Base cbBTC market data.
+- ENS wallet input can be shown as `baseddesigner.eth`, resolved before handoff.
 - KeeperHub is a safe handoff preview, not live signing by default.
 - Demo settlement uses `x-payment: demo-paid` for reproducible review.
 
@@ -109,7 +110,7 @@ Voice:
 - “Execution-ready swap” unless showing real calldata/minOut/signing.
 - “Live KeeperHub execution” unless actual execution is wired.
 - “Bot trading autonomously.” That is not the wedge.
-- Any private infra, VPS, Tailscale, keys, or internal paths.
+- Any private infrastructure, keys, or internal paths.
 
 ## Quick Recording Checklist
 

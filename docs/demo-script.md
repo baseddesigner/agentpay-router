@@ -28,7 +28,7 @@ Point out live Base cbBTC market data and the demo payment receipt.
 npm run demo
 ```
 
-Point out that the handoff consumes the paid quote object from step 3. It does not fetch a free quote again. Then point out policy checks, KeeperHub payload preview, `handoffHash`, and inline audit summary. Say clearly: `handoffHash` is a deterministic handoff receipt, not an onchain transaction hash.
+Point out that the handoff consumes the paid quote object from step 3. It does not fetch a free quote again. Then point out ENS wallet resolution if using `baseddesigner.eth`, policy checks, KeeperHub payload preview, `handoffHash`, and inline audit summary. Say clearly: `handoffHash` is a deterministic handoff receipt, not an onchain transaction hash.
 
 5. Say the honest boundary:
    - Real: deployed API, live Base data, 402 challenge, strict paid quote handoff, policy checks, OpenAPI, audit summaries.

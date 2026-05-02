@@ -48,14 +48,38 @@ describe('prepareKeeperHubExecution', () => {
     });
 
     expect(handoff.status).toBe('ready_for_keeperhub');
+    expect(handoff.wallet).toMatchObject({
+      input: '0x0000000000000000000000000000000000000000',
+      address: '0x0000000000000000000000000000000000000000',
+    });
     expect(handoff.handoffHash).toMatch(/^0x[a-f0-9]{64}$/);
     expect(handoff.handoffReceipt).toMatchObject({
       kind: 'handoff_receipt',
       hash: handoff.handoffHash,
     });
     expect(handoff.handoffReceipt.note).toContain('not an onchain transaction hash');
+    expect(handoff.keeperhub.payloadPreview.owner).toBe('0x0000000000000000000000000000000000000000');
     expect(handoff.keeperhub.payloadPreview.buyToken).toMatchObject({ symbol: 'CBBTC' });
     expect(handoff.keeperhub.payloadPreview.note).toContain('handoff preview');
+  });
+
+  it('accepts an ENS wallet and uses the resolved address in payload preview', async () => {
+    const resolved = '0x0000000000000000000000000000000000000001' as const;
+    const handoff = await prepareKeeperHubExecution(
+      {
+        wallet: 'baseddesigner.eth',
+        quote: paidCbbtcQuote,
+        policy: { maxUsd: 5000, maxSlippageBps: 100 },
+      },
+      async () => resolved,
+    );
+
+    expect(handoff.wallet).toEqual({
+      input: 'baseddesigner.eth',
+      address: resolved,
+      ensName: 'baseddesigner.eth',
+    });
+    expect(handoff.keeperhub.payloadPreview.owner).toBe(resolved);
   });
 
   it('returns the same handoffHash for the same paid quote, policy, and payload', async () => {
