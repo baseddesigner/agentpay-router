@@ -19,6 +19,7 @@ function auditSummary(payload: any) {
     sell: payload?.quote?.sell,
     buy: payload?.quote?.buy,
     amount: payload?.quote?.amount,
+    handoffHash: payload?.handoffHash,
     failedChecks: failedChecks.map((check: { name?: string }) => check.name).filter(Boolean),
   };
 }

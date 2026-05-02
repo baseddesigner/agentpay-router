@@ -54,6 +54,7 @@ Real:
 - Strict quote shape validation before handoff.
 - Policy checks before KeeperHub handoff preview.
 - Audit summary returned inline.
+- Handoff hash returned as a deterministic receipt, not an onchain transaction hash.
 - Machine-readable OpenAPI route at `/openapi.json`.
 - Public repo with no VPS IPs, private paths, keys, or credentials.
 

@@ -30,7 +30,7 @@ const paidQuote = await printStep(
 );
 
 await printStep(
-  '4. KeeperHub handoff preview + audit summary',
+  '4. KeeperHub handoff receipt + audit summary',
   await request('/keeperhub/prepare-execution', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
@@ -42,4 +42,4 @@ await printStep(
   }),
 );
 
-console.log('\nDone. This is the recordable flow: request → 402 → paid quote → KeeperHub handoff.');
+console.log('\nDone. This is the recordable flow: request → 402 → paid quote → handoff receipt → KeeperHub payload preview.');

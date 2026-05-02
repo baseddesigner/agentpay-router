@@ -48,7 +48,26 @@ describe('prepareKeeperHubExecution', () => {
     });
 
     expect(handoff.status).toBe('ready_for_keeperhub');
+    expect(handoff.handoffHash).toMatch(/^0x[a-f0-9]{64}$/);
+    expect(handoff.handoffReceipt).toMatchObject({
+      kind: 'handoff_receipt',
+      hash: handoff.handoffHash,
+    });
+    expect(handoff.handoffReceipt.note).toContain('not an onchain transaction hash');
     expect(handoff.keeperhub.payloadPreview.buyToken).toMatchObject({ symbol: 'CBBTC' });
     expect(handoff.keeperhub.payloadPreview.note).toContain('handoff preview');
+  });
+
+  it('returns the same handoffHash for the same paid quote, policy, and payload', async () => {
+    const input = {
+      wallet: '0x0000000000000000000000000000000000000000',
+      quote: paidCbbtcQuote,
+      policy: { maxUsd: 5000, maxSlippageBps: 100 },
+    };
+
+    const first = await prepareKeeperHubExecution(input);
+    const second = await prepareKeeperHubExecution(input);
+
+    expect(second.handoffHash).toBe(first.handoffHash);
   });
 });

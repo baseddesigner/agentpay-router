@@ -32,6 +32,7 @@ The project is intentionally narrow: it is not a full trading bot and does not p
 - Returns live Base cbBTC market data after payment.
 - Requires a paid quote object before KeeperHub handoff.
 - Runs policy checks before handoff.
+- Returns a deterministic handoff hash receipt.
 - Returns an inline audit summary.
 - Exposes OpenAPI for agents and tooling.
 
@@ -79,6 +80,7 @@ Real:
 - Strict quote validation.
 - Policy checks.
 - KeeperHub payload preview.
+- Deterministic `handoffHash` receipt. This is not an onchain transaction hash.
 - Inline audit summary.
 - OpenAPI route.
 

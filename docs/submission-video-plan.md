@@ -79,10 +79,12 @@ AGENTPAY_BASE_URL=https://agentpay-router-zeta.vercel.app npm run demo
 ```
 
 Voice:
-> The full flow is request, 402, paid quote, then KeeperHub handoff. The handoff endpoint does not accept a free quote request. It consumes the paid quote object, validates it, runs policy checks, and returns a KeeperHub payload preview plus an inline audit summary.
+> The full flow is request, 402, paid quote, then KeeperHub handoff. The handoff endpoint does not accept a free quote request. It consumes the paid quote object, validates it, runs policy checks, and returns a KeeperHub payload preview, a deterministic handoff hash, and an inline audit summary. This handoff hash is not an onchain transaction hash; it is the receipt for exactly what the agent paid for and what would be handed to execution.
 
 Point at:
 - `ready_for_keeperhub`
+- `handoffHash`
+- `handoffReceipt.note`
 - `policyChecks`
 - `payloadPreview`
 - `audit.summary`

@@ -71,7 +71,15 @@ describe('AgentPay Router app', () => {
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.status).toBe('ready_for_keeperhub');
-    expect(json.audit.summary).toMatchObject({ decision: 'approved', chainId: 8453, sell: 'USDC', buy: 'CBBTC' });
+    expect(json.handoffHash).toMatch(/^0x[a-f0-9]{64}$/);
+    expect(json.handoffReceipt.note).toContain('not an onchain transaction hash');
+    expect(json.audit.summary).toMatchObject({
+      decision: 'approved',
+      chainId: 8453,
+      sell: 'USDC',
+      buy: 'CBBTC',
+      handoffHash: json.handoffHash,
+    });
   });
 
   it('requires payment for quote', async () => {

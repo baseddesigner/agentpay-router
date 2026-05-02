@@ -224,9 +224,23 @@ export function openApiSpec() {
         },
         HandoffResponse: {
           type: 'object',
-          required: ['status', 'quote', 'policyChecks', 'keeperhub', 'audit'],
+          required: ['status', 'handoffHash', 'handoffReceipt', 'quote', 'policyChecks', 'keeperhub', 'audit'],
           properties: {
             status: { type: 'string', enum: ['ready_for_keeperhub', 'blocked_by_policy'] },
+            handoffHash: {
+              type: 'string',
+              pattern: '^0x[a-f0-9]{64}$',
+              description: 'Deterministic handoff receipt hash. This is not an onchain transaction hash.',
+            },
+            handoffReceipt: {
+              type: 'object',
+              required: ['kind', 'hash', 'note'],
+              properties: {
+                kind: { type: 'string', const: 'handoff_receipt' },
+                hash: { type: 'string', pattern: '^0x[a-f0-9]{64}$' },
+                note: { type: 'string' },
+              },
+            },
             quote: { $ref: '#/components/schemas/MarketQuote' },
             policyChecks: {
               type: 'array',

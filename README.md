@@ -97,6 +97,7 @@ Returns:
 - paid quote
 - deterministic `policyChecks`
 - KeeperHub handoff preview
+- deterministic handoff hash receipt
 - audit JSON path plus inline `audit.summary`
 
 ## What is real vs demo mode
@@ -107,6 +108,7 @@ Real:
 - HTTP `402 Payment Required` behavior for unpaid requests.
 - Handoff requires a paid quote object, not a free quote request.
 - Policy checks before KeeperHub handoff preview.
+- Deterministic `handoffHash` receipt. This is not an onchain transaction hash.
 - Audit summary returned inline.
 - Machine-readable OpenAPI route at `/openapi.json`.
 - Public repo with no VPS IPs, private paths, keys, or credentials.
