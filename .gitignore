@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+.env.local
+.vercel/
+coverage/
+.agentpay/
+*.log
+.DS_Store

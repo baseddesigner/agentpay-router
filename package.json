@@ -1,0 +1,44 @@
+{
+  "name": "agentpay-router",
+  "version": "0.1.0",
+  "description": "x402-style paid HTTP gateway for agent market quotes and KeeperHub execution handoffs.",
+  "type": "module",
+  "bin": {
+    "agentpay": "./dist/src/cli.js"
+  },
+  "scripts": {
+    "dev": "tsx src/server.ts",
+    "cli": "tsx src/cli.ts",
+    "demo": "tsx examples/agent-demo.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "build": "tsc --noEmit"
+  },
+  "keywords": [
+    "x402",
+    "agents",
+    "hono",
+    "vercel",
+    "keeperhub",
+    "base"
+  ],
+  "author": "Clawlinker",
+  "license": "MIT",
+  "dependencies": {
+    "@hono/node-server": "^2.0.1",
+    "@x402/core": "^2.11.0",
+    "@x402/evm": "^2.11.0",
+    "@x402/hono": "^2.11.0",
+    "commander": "^14.0.3",
+    "dotenv": "^17.4.2",
+    "hono": "^4.12.16",
+    "viem": "^2.48.8",
+    "zod": "^4.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
+  }
+}
