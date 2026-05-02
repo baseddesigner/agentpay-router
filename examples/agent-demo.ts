@@ -35,7 +35,7 @@ await printStep(
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({
-      wallet: '0x0000000000000000000000000000000000000000',
+      wallet: 'baseddesigner.eth',
       quote: paidQuote,
       policy: { maxUsd: 5000, maxSlippageBps: 100 },
     }),
