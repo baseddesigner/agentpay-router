@@ -22,11 +22,11 @@ console.log(remoteBase ? `target: ${remoteBase}` : 'target: in-process local app
 
 await printStep('1. health check', await request('/health'));
 
-await printStep('2. unpaid request returns HTTP 402', await request('/quote?sell=USDC&buy=WETH&amount=1'));
+await printStep('2. unpaid request returns HTTP 402', await request('/quote?sell=USDC&buy=0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf&amount=100'));
 
 const paidQuote = await printStep(
-  '3. paid x402-style request returns live Base quote',
-  await request('/quote?sell=USDC&buy=WETH&amount=1', { headers: { 'x-payment': 'demo-paid' } }),
+  '3. paid x402-style request returns live Base cbBTC quote',
+  await request('/quote?sell=USDC&buy=CBBTC&amount=100', { headers: { 'x-payment': 'demo-paid' } }),
 );
 
 await printStep(
@@ -37,7 +37,7 @@ await printStep(
     body: JSON.stringify({
       wallet: '0x0000000000000000000000000000000000000000',
       quote: paidQuote,
-      policy: { maxUsd: 10, maxSlippageBps: 100 },
+      policy: { maxUsd: 5000, maxSlippageBps: 100 },
     }),
   }),
 );

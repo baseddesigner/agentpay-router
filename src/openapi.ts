@@ -60,10 +60,10 @@ export function openApiSpec() {
           tags: ['quote'],
           summary: 'Get a paid Base market quote',
           description:
-            'Without payment, returns HTTP 402 plus a Payment-Required challenge. In demo mode, send x-payment: demo-paid to receive a live Base USDC/WETH quote.',
+            'Without payment, returns HTTP 402 plus a Payment-Required challenge. In demo mode, send x-payment: demo-paid to receive a live Base quote such as USDC to cbBTC.',
           parameters: [
-            { name: 'sell', in: 'query', schema: { type: 'string', enum: ['USDC', 'WETH'], default: 'USDC' } },
-            { name: 'buy', in: 'query', schema: { type: 'string', enum: ['USDC', 'WETH'], default: 'WETH' } },
+            { name: 'sell', in: 'query', schema: { type: 'string', enum: ['USDC', 'WETH', 'CBBTC', '0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf'], default: 'USDC' } },
+            { name: 'buy', in: 'query', schema: { type: 'string', enum: ['USDC', 'WETH', 'CBBTC', '0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf'], default: 'WETH' } },
             { name: 'amount', in: 'query', schema: { type: 'number', default: 1, minimum: 0 } },
             { name: 'chainId', in: 'query', schema: { type: 'string', default: '8453' } },
             { name: 'x-payment', in: 'header', required: false, schema: { type: 'string', example: 'demo-paid' } },
@@ -105,7 +105,7 @@ export function openApiSpec() {
                   usdcToWeth: {
                     value: {
                       wallet: '0x0000000000000000000000000000000000000000',
-                      quoteRequest: { sell: 'USDC', buy: 'WETH', amount: 1 },
+                      quoteRequest: { sell: 'USDC', buy: 'CBBTC', amount: 100 },
                       policy: { maxUsd: 5000, maxSlippageBps: 100 },
                     },
                   },
@@ -172,8 +172,8 @@ export function openApiSpec() {
               type: 'object',
               required: ['sell', 'buy', 'amount'],
               properties: {
-                sell: { type: 'string', enum: ['USDC', 'WETH'] },
-                buy: { type: 'string', enum: ['USDC', 'WETH'] },
+                sell: { type: 'string', enum: ['USDC', 'WETH', 'CBBTC'] },
+                buy: { type: 'string', enum: ['USDC', 'WETH', 'CBBTC'] },
                 amount: { type: 'number', minimum: 0 },
               },
             },

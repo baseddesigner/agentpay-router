@@ -14,7 +14,7 @@ HTTP-native paid services for agents: request → `402 Payment Required` → pay
 
 AgentPay Router is a small, demoable x402-style gateway for autonomous agents. Instead of creating accounts, managing API keys, or subscribing to human dashboards, an agent can request a useful service over HTTP, receive a payment challenge, pay for that request, and continue with a structured response.
 
-The demo service sells live Base market quote access, then prepares a policy-checked KeeperHub handoff so an execution agent could take over without mixing quote retrieval, payment, policy, and signing concerns.
+The demo service sells live Base market quote access, including a visible USDC → cbBTC example using the real Base cbBTC contract `0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf`, then prepares a policy-checked KeeperHub handoff so an execution agent could take over without mixing quote retrieval, payment, policy, and signing concerns.
 
 ## Demo flow
 
@@ -36,11 +36,11 @@ Manual API checks:
 
 ```bash
 curl https://agentpay-router-zeta.vercel.app/health
-curl -i 'https://agentpay-router-zeta.vercel.app/quote?sell=USDC&buy=WETH&amount=1'
-curl -H 'x-payment: demo-paid' 'https://agentpay-router-zeta.vercel.app/quote?sell=USDC&buy=WETH&amount=1'
+curl -i 'https://agentpay-router-zeta.vercel.app/quote?sell=USDC&buy=0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf&amount=100'
+curl -H 'x-payment: demo-paid' 'https://agentpay-router-zeta.vercel.app/quote?sell=USDC&buy=CBBTC&amount=100'
 curl -X POST https://agentpay-router-zeta.vercel.app/keeperhub/prepare-execution \
   -H 'content-type: application/json' \
-  -d '{"wallet":"0x0000000000000000000000000000000000000000","quoteRequest":{"sell":"USDC","buy":"WETH","amount":1},"policy":{"maxUsd":5000,"maxSlippageBps":100}}'
+  -d '{"wallet":"0x0000000000000000000000000000000000000000","quoteRequest":{"sell":"USDC","buy":"CBBTC","amount":100},"policy":{"maxUsd":5000,"maxSlippageBps":100}}'
 ```
 
 ## What is real vs demo mode

@@ -10,6 +10,7 @@ describe('AgentPay Router app', () => {
     expect(html).toContain('Paid API rails for agents');
     expect(html).toContain('https://agentpay-router-zeta.vercel.app');
     expect(html).toContain('Examples agents can copy');
+    expect(html).toContain('0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf');
     expect(html).toContain('POST /keeperhub/prepare-execution');
   });
 

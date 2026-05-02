@@ -97,28 +97,28 @@ export function landingPage() {
       </div>
       <div class="card terminal" aria-label="terminal demo">
         <div class="terminalbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
-        <pre><span class="accent">$</span> curl -i /quote?sell=USDC&buy=WETH
+        <pre><span class="accent">$</span> curl -i /quote?sell=USDC&buy=0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf&amount=100
 HTTP/2 402 Payment Required
 payment-required: eyJ4NDAyVmVyc2lvbiI...
 
-<span class="accent">$</span> curl -H 'x-payment: demo-paid' /quote
+<span class="accent">$</span> curl -H 'x-payment: demo-paid' /quote?sell=USDC&buy=CBBTC&amount=100
 {
   "payment": { "status": "settled" },
-  "quote": { "source": "DexScreener live Base" },
-  "route": [{ "dex": "uniswap" }]
+  "quote": { "source": "DexScreener live Base CBBTC/USDC" },
+  "route": [{ "dex": "aerodrome" }]
 }</pre>
       </div>
     </section>
 
     <section class="grid">
       <article class="card feature"><h3>HTTP-native payment</h3><p>Unpaid requests receive a machine-readable 402 challenge. Demo mode accepts an explicit payment header for reproducible judging.</p></article>
-      <article class="card feature"><h3>Live market quote</h3><p>Paid requests return a Base USDC/WETH quote with route metadata instead of a fake JSON toy response.</p></article>
+      <article class="card feature"><h3>Live market quote</h3><p>Paid requests return real Base quotes like USDC → cbBTC using the cbBTC contract address, not a fake JSON toy response.</p></article>
       <article class="card feature"><h3>Execution handoff</h3><p>KeeperHub payload previews include policy checks, route data, token addresses, and an audit artifact.</p></article>
     </section>
 
     <section id="flow" class="card section">
       <h2>One request becomes an execution-ready handoff.</h2>
-      <p>The hackathon demo keeps the path narrow on purpose: make payment legible, keep secrets out of the public repo, and avoid pretending a demo should hold trading keys.</p>
+      <p>The hackathon demo keeps the path narrow on purpose: make payment legible, keep secrets out of the public repo, and avoid pretending a demo should hold trading keys. The visible example uses Base cbBTC at <code>0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf</code>.</p>
       <div class="flow">
         <div class="step"><span>01</span>Agent asks for quote</div>
         <div class="step"><span>02</span>Router returns HTTP 402</div>
@@ -133,19 +133,19 @@ payment-required: eyJ4NDAyVmVyc2lvbiI...
       <p>Production is hosted on Vercel. No VPS address is embedded in the repo or demo.</p>
       <div class="command"><div class="code">curl ${apiBase}/health</div><button class="copy" data-copy="curl ${apiBase}/health">Copy</button></div>
       <br />
-      <div class="command"><div class="code">curl -i '${apiBase}/quote?sell=USDC&amp;buy=WETH&amp;amount=1'</div><button class="copy" data-copy="curl -i '${apiBase}/quote?sell=USDC&buy=WETH&amount=1'">Copy</button></div>
+      <div class="command"><div class="code">curl -i '${apiBase}/quote?sell=USDC&amp;buy=0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf&amp;amount=100'</div><button class="copy" data-copy="curl -i '${apiBase}/quote?sell=USDC&buy=0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf&amount=100'">Copy</button></div>
       <br />
-      <div class="command"><div class="code">curl -H 'x-payment: demo-paid' '${apiBase}/quote?sell=USDC&amp;buy=WETH&amp;amount=1'</div><button class="copy" data-copy="curl -H 'x-payment: demo-paid' '${apiBase}/quote?sell=USDC&buy=WETH&amount=1'">Copy</button></div>
+      <div class="command"><div class="code">curl -H 'x-payment: demo-paid' '${apiBase}/quote?sell=USDC&amp;buy=CBBTC&amp;amount=100'</div><button class="copy" data-copy="curl -H 'x-payment: demo-paid' '${apiBase}/quote?sell=USDC&buy=CBBTC&amount=100'">Copy</button></div>
     </section>
     <section id="examples" class="card section">
       <h2>Examples agents can copy.</h2>
       <p>Three concrete calls cover the full demo narrative: unpaid request, paid quote, and KeeperHub execution handoff.</p>
       <br />
-      <div class="command"><div class="code">GET /quote → 402 Payment Required</div><button class="copy" data-copy="curl -i '${apiBase}/quote?sell=USDC&buy=WETH&amount=1'">Copy</button></div>
+      <div class="command"><div class="code">GET /quote → 402 Payment Required</div><button class="copy" data-copy="curl -i '${apiBase}/quote?sell=USDC&buy=0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf&amount=100'">Copy</button></div>
       <br />
-      <div class="command"><div class="code">GET /quote with x-payment → live Base quote</div><button class="copy" data-copy="curl -H 'x-payment: demo-paid' '${apiBase}/quote?sell=USDC&buy=WETH&amount=1'">Copy</button></div>
+      <div class="command"><div class="code">GET /quote with x-payment → live Base cbBTC quote</div><button class="copy" data-copy="curl -H 'x-payment: demo-paid' '${apiBase}/quote?sell=USDC&buy=CBBTC&amount=100'">Copy</button></div>
       <br />
-      <div class="command"><div class="code">POST /keeperhub/prepare-execution → policy-checked handoff</div><button class="copy" data-copy='curl -X POST ${apiBase}/keeperhub/prepare-execution -H "content-type: application/json" -d "{\"wallet\":\"0x0000000000000000000000000000000000000000\",\"quoteRequest\":{\"sell\":\"USDC\",\"buy\":\"WETH\",\"amount\":1},\"policy\":{\"maxUsd\":5000,\"maxSlippageBps\":100}}"'>Copy</button></div>
+      <div class="command"><div class="code">POST /keeperhub/prepare-execution → policy-checked cbBTC handoff</div><button class="copy" data-copy='curl -X POST ${apiBase}/keeperhub/prepare-execution -H "content-type: application/json" -d "{\"wallet\":\"0x0000000000000000000000000000000000000000\",\"quoteRequest\":{\"sell\":\"USDC\",\"buy\":\"CBBTC\",\"amount\":100},\"policy\":{\"maxUsd\":5000,\"maxSlippageBps\":100}}"'>Copy</button></div>
     </section>
   </main>
   <footer class="container">Built for OpenAgents. Small surface area, honest demo mode, clean upgrade path to live x402 settlement.</footer>

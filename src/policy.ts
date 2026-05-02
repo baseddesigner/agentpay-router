@@ -5,7 +5,7 @@ export const policySchema = z.object({
   maxUsd: z.number().positive().default(10),
   maxSlippageBps: z.number().int().min(1).max(2_000).default(100),
   allowedChains: z.array(z.number()).default([8453]),
-  allowedTokens: z.array(z.string()).default(['USDC', 'WETH']),
+  allowedTokens: z.array(z.string()).default(['USDC', 'WETH', 'CBBTC']),
 });
 
 export type Policy = z.infer<typeof policySchema>;

@@ -37,39 +37,57 @@ type DexPair = {
   liquidity?: { usd?: number };
 };
 
-const WETH_DEXSCREENER = 'https://api.dexscreener.com/latest/dex/tokens/0x4200000000000000000000000000000000000006';
-
-function quoteFromEthUsd(req: QuoteRequest, ethUsd: number): string {
-  if (req.sell === 'USDC' && req.buy === 'WETH') return (req.amount / ethUsd).toFixed(8);
-  if (req.sell === 'WETH' && req.buy === 'USDC') return (req.amount * ethUsd).toFixed(4);
-  throw new Error('Unsupported route. MVP supports USDC↔WETH.');
+function dexscreenerTokenUrl(symbol: TokenSymbol): string {
+  return `https://api.dexscreener.com/latest/dex/tokens/${TOKENS[symbol].address}`;
 }
 
-function routePrice(req: QuoteRequest, ethUsd: number): string {
-  if (req.sell === 'USDC' && req.buy === 'WETH') return `${(1 / ethUsd).toFixed(8)} WETH / USDC`;
-  return `${ethUsd.toFixed(2)} USDC / WETH`;
+function pairContains(pair: DexPair, symbol: TokenSymbol): boolean {
+  const tokenAddress = TOKENS[symbol].address.toLowerCase();
+  const symbols = [pair.baseToken?.symbol?.toUpperCase(), pair.quoteToken?.symbol?.toUpperCase()];
+  const addresses = [pair.baseToken?.address?.toLowerCase(), pair.quoteToken?.address?.toLowerCase()];
+  return symbols.includes(symbol) || addresses.includes(tokenAddress);
+}
+
+function liquidUsdcPair(pair: DexPair, symbol: TokenSymbol): boolean {
+  return pair.chainId === 'base' && pairContains(pair, symbol) && pairContains(pair, 'USDC') && Number(pair.priceUsd) > 0;
+}
+
+async function tokenUsdMarket(symbol: TokenSymbol): Promise<{ priceUsd: number; pair: DexPair }> {
+  if (symbol === 'USDC') return { priceUsd: 1, pair: { chainId: 'base', dexId: 'stable', pairAddress: 'USDC', priceUsd: '1', liquidity: { usd: 1 } } };
+
+  const res = await fetch(dexscreenerTokenUrl(symbol), { headers: { accept: 'application/json', 'user-agent': 'AgentPay Router' } });
+  if (!res.ok) throw new Error(`DexScreener quote source failed: ${res.status}`);
+  const body = (await res.json()) as { pairs?: DexPair[] };
+  const pair = (body.pairs ?? [])
+    .filter((p) => liquidUsdcPair(p, symbol))
+    .sort((a, b) => Number(b.liquidity?.usd ?? 0) - Number(a.liquidity?.usd ?? 0))[0];
+  if (!pair) throw new Error(`No liquid Base ${symbol}/USDC pair found.`);
+
+  return { priceUsd: Number(pair.priceUsd), pair };
+}
+
+function estimatedOut(req: QuoteRequest, tokenUsd: number): string {
+  if (req.sell === 'USDC') return (req.amount / tokenUsd).toFixed(req.buy === 'CBBTC' ? 8 : 8);
+  if (req.buy === 'USDC') return (req.amount * tokenUsd).toFixed(4);
+  throw new Error('Unsupported route. MVP supports USDC↔WETH and USDC↔cbBTC on Base.');
+}
+
+function routePrice(req: QuoteRequest, tokenUsd: number): string {
+  if (req.sell === 'USDC') return `${(1 / tokenUsd).toFixed(8)} ${req.buy} / USDC`;
+  return `${tokenUsd.toFixed(2)} USDC / ${req.sell}`;
 }
 
 export async function getLiveQuote(input: unknown): Promise<QuoteResponse> {
   const req = quoteRequestSchema.parse(input);
   if (req.chainId !== BASE_CHAIN_ID) throw new Error('Only Base mainnet (8453) is supported in the MVP.');
   if (req.sell === req.buy) throw new Error('sell and buy tokens must differ.');
+  if (req.sell !== 'USDC' && req.buy !== 'USDC') {
+    throw new Error('Unsupported route. MVP supports USDC↔WETH and USDC↔cbBTC on Base.');
+  }
 
-  const res = await fetch(WETH_DEXSCREENER, { headers: { accept: 'application/json' } });
-  if (!res.ok) throw new Error(`DexScreener quote source failed: ${res.status}`);
-  const body = (await res.json()) as { pairs?: DexPair[] };
-  const candidates = (body.pairs ?? [])
-    .filter((p) => p.chainId === 'base')
-    .filter((p) => {
-      const symbols = [p.baseToken?.symbol?.toUpperCase(), p.quoteToken?.symbol?.toUpperCase()];
-      return symbols.includes('WETH') && symbols.includes('USDC') && Number(p.priceUsd) > 0;
-    })
-    .sort((a, b) => Number(b.liquidity?.usd ?? 0) - Number(a.liquidity?.usd ?? 0));
-  const pair = candidates[0];
-  if (!pair) throw new Error('No liquid Base WETH/USDC pair found.');
-
-  const ethUsd = Number(pair.priceUsd);
-  const estimatedOut = quoteFromEthUsd(req, ethUsd);
+  const pricedToken = req.sell === 'USDC' ? req.buy : req.sell;
+  const market = await tokenUsdMarket(pricedToken);
+  const out = estimatedOut(req, market.priceUsd);
   const id = `quote_${Buffer.from(`${req.sell}:${req.buy}:${req.amount}:${Date.now()}`).toString('base64url').slice(0, 18)}`;
 
   return {
@@ -79,13 +97,13 @@ export async function getLiveQuote(input: unknown): Promise<QuoteResponse> {
     buy: req.buy,
     amount: String(req.amount),
     quote: {
-      estimatedOut,
-      executionPrice: routePrice(req, ethUsd),
-      source: 'DexScreener live Base WETH/USDC market data',
-      pairAddress: pair.pairAddress,
-      liquidityUsd: pair.liquidity?.usd,
+      estimatedOut: out,
+      executionPrice: routePrice(req, market.priceUsd),
+      source: `DexScreener live Base ${pricedToken}/USDC market data`,
+      pairAddress: market.pair.pairAddress,
+      liquidityUsd: market.pair.liquidity?.usd,
     },
-    route: [{ dex: pair.dexId ?? 'unknown', pair: pair.pairAddress ?? 'unknown' }],
+    route: [{ dex: market.pair.dexId ?? 'unknown', pair: market.pair.pairAddress ?? 'unknown' }],
     timestamp: new Date().toISOString(),
   };
 }

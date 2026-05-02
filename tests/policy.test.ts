@@ -25,4 +25,10 @@ describe('evaluatePolicy', () => {
     expect(result.decision).toBe('blocked');
     expect(result.checks.find((c) => c.name === 'max_usd')?.status).toBe('fail');
   });
+
+  it('allows cbBTC handoffs by default', () => {
+    const result = evaluatePolicy({ ...quote, buy: 'CBBTC', quote: { ...quote.quote, estimatedOut: '0.0012' } }, { maxUsd: 5000, maxSlippageBps: 100 });
+    expect(result.decision).toBe('approved');
+    expect(result.checks.find((c) => c.name === 'token_allowlist')?.status).toBe('pass');
+  });
 });

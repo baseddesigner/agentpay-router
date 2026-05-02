@@ -8,7 +8,7 @@ AgentPay Router is a tiny OpenAgents hackathon submission: an x402-style paid HT
 
 - `GET /` — shadcn-inspired landing page for judges and manual upload review.
 - `GET /openapi.json` — machine-readable OpenAPI spec for agents and judges.
-- `GET /quote` — returns live Base USDC/WETH quote data after payment.
+- `GET /quote` — returns live Base WETH or cbBTC quote data after payment.
 - `POST /keeperhub/prepare-execution` — turns the quote into a KeeperHub-ready handoff with policy checks.
 - `npm run demo` — screen-recordable flow: request → 402 → paid quote → KeeperHub handoff.
 - Vercel-first deploy — no VPS IPs or private infra in the public repo.
@@ -44,11 +44,11 @@ Manual checks:
 ```bash
 curl https://agentpay-router-zeta.vercel.app/health
 curl https://agentpay-router-zeta.vercel.app/openapi.json
-curl -i 'https://agentpay-router-zeta.vercel.app/quote?sell=USDC&buy=WETH&amount=1'
-curl -H 'x-payment: demo-paid' 'https://agentpay-router-zeta.vercel.app/quote?sell=USDC&buy=WETH&amount=1'
+curl -i 'https://agentpay-router-zeta.vercel.app/quote?sell=USDC&buy=0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf&amount=100'
+curl -H 'x-payment: demo-paid' 'https://agentpay-router-zeta.vercel.app/quote?sell=USDC&buy=CBBTC&amount=100'
 curl -X POST https://agentpay-router-zeta.vercel.app/keeperhub/prepare-execution \
   -H 'content-type: application/json' \
-  -d '{"wallet":"0x0000000000000000000000000000000000000000","quoteRequest":{"sell":"USDC","buy":"WETH","amount":1},"policy":{"maxUsd":5000,"maxSlippageBps":100}}'
+  -d '{"wallet":"0x0000000000000000000000000000000000000000","quoteRequest":{"sell":"USDC","buy":"CBBTC","amount":100},"policy":{"maxUsd":5000,"maxSlippageBps":100}}'
 ```
 
 ## API
@@ -60,8 +60,8 @@ Machine-readable OpenAPI 3.1 spec for agents, judges, and API tooling.
 ### `GET /quote`
 
 Query params:
-- `sell`: `USDC` or `WETH`
-- `buy`: `USDC` or `WETH`
+- `sell`: `USDC`, `WETH`, `CBBTC`, or the cbBTC Base contract address
+- `buy`: `USDC`, `WETH`, `CBBTC`, or the cbBTC Base contract address
 - `amount`: positive number
 - `chainId`: defaults to Base `8453`
 
