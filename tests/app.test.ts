@@ -2,18 +2,18 @@ import { describe, expect, it } from 'vitest';
 import app from '../src/app.js';
 
 describe('AgentPay Router app', () => {
-  it('serves a shadcn-inspired landing page with concrete API examples and real/demo clarity', async () => {
+  it('serves a concise product-first landing page with no hackathon copy', async () => {
     const res = await app.request('/');
     expect(res.status).toBe(200);
     expect(res.headers.get('content-type')).toContain('text/html');
     const html = await res.text();
     expect(html).toContain('Paid API rails for agents');
+    expect(html).toContain('Pay per request. Get live Base quotes. Send policy-checked handoffs.');
     expect(html).toContain('https://agentpay-router-zeta.vercel.app');
-    expect(html).toContain('What is real vs demo mode');
-    expect(html).toContain('Examples agents can copy');
     expect(html).toContain('0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf');
     expect(html).toContain('POST /keeperhub/prepare-execution');
-    expect(html).toContain('handoff consumes the paid quote');
+    expect(html).not.toMatch(/hackathon|judge|judges|OpenAgents|submission/i);
+    expect(html.length).toBeLessThan(12000);
   });
 
   it('serves an OpenAPI description for agents and judges', async () => {
