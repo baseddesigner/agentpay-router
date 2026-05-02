@@ -19,8 +19,9 @@ export function landingPage() {
     code { color: #fed7aa; }
     .container { width: min(1120px, calc(100% - 32px)); margin: 0 auto; }
     .nav { display: flex; align-items: center; justify-content: space-between; padding: 24px 0; color: hsl(var(--muted)); }
-    .brand { display: flex; align-items: center; gap: 10px; color: hsl(var(--fg)); font-weight: 700; }
-    .logo { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 12px; background: hsl(var(--orange)); color: hsl(var(--dark)); box-shadow: 0 0 40px rgba(249,115,22,.34); }
+    .brand { display: flex; align-items: center; gap: 12px; color: hsl(var(--fg)); font-weight: 700; }
+    .logo { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 14px; overflow: hidden; background: #050505; border: 1px solid hsl(var(--border)); box-shadow: 0 0 44px rgba(249,115,22,.28); }
+    .logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .navlinks { display: flex; align-items: center; gap: 18px; font-size: 14px; }
     .hero { padding: 72px 0 48px; display: grid; gap: 36px; grid-template-columns: 1.05fr .95fr; align-items: center; }
     .eyebrow { display: inline-flex; padding: 7px 10px; border: 1px solid hsl(var(--border)); border-radius: 999px; background: rgba(255,255,255,.03); color: hsl(var(--muted)); font-size: 13px; }
@@ -55,7 +56,7 @@ export function landingPage() {
 <body>
   <main class="container">
     <nav class="nav">
-      <a class="brand" href="/"><span class="logo">↯</span><span>AgentPay Router</span></a>
+      <a class="brand" href="/"><span class="logo"><img src="https://v3b.fal.media/files/b/0a98a2f4/HbRYAmiFXhQ9VZAYVTRkM_xI1UO4h1.png" alt="Swapper command rails logo" loading="eager" /></span><span>AgentPay Router</span></a>
       <div class="navlinks"><a href="#flow">Flow</a><a href="#try">Try</a><a href="https://github.com/baseddesigner/agentpay-router">GitHub</a></div>
     </nav>
 

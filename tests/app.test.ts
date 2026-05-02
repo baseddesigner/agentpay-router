@@ -10,6 +10,8 @@ describe('AgentPay Router app', () => {
     expect(html).toContain('Paid API rails for agents');
     expect(html).toContain('Pay per request. Get live Base quotes. Send policy-checked handoffs.');
     expect(html).toContain('https://agentpay-router-zeta.vercel.app');
+    expect(html).toContain('https://v3b.fal.media/files/b/0a98a2f4/HbRYAmiFXhQ9VZAYVTRkM_xI1UO4h1.png');
+    expect(html).toContain('alt="Swapper command rails logo"');
     expect(html).toContain('0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf');
     expect(html).toContain('POST /keeperhub/prepare-execution');
     expect(html).not.toMatch(/hackathon|judge|judges|OpenAgents|submission/i);
