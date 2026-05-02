@@ -2,15 +2,15 @@
 
 > Agents do not need API keys. They need HTTP services they can pay for at request time.
 
-AgentPay Router is a tiny OpenAgents hackathon submission: an x402-style paid HTTP gateway that lets an agent request live Base market data, receive `402 Payment Required`, pay per request, then receive an execution-ready KeeperHub handoff with policy checks and an audit artifact.
+AgentPay Router is a tiny OpenAgents hackathon submission: an x402-style paid HTTP gateway that lets an agent request live Base market data, receive `402 Payment Required`, pay per request, then pass the paid quote into a KeeperHub handoff preview with policy checks and an inline audit summary.
 
 ## What it does
 
 - `GET /` — shadcn-inspired landing page for judges and manual upload review.
 - `GET /openapi.json` — machine-readable OpenAPI spec for agents and judges.
-- `GET /quote` — returns live Base WETH or cbBTC quote data after payment.
-- `POST /keeperhub/prepare-execution` — turns the quote into a KeeperHub-ready handoff with policy checks.
-- `npm run demo` — screen-recordable flow: request → 402 → paid quote → KeeperHub handoff.
+- `GET /quote` — returns live Base WETH or cbBTC market data after payment.
+- `POST /keeperhub/prepare-execution` — consumes the paid quote object from `/quote` and returns a KeeperHub handoff preview with policy checks.
+- `npm run demo` — screen-recordable flow: request → 402 → paid quote → KeeperHub handoff preview.
 - Vercel-first deploy — no VPS IPs or private infra in the public repo.
 
 ## Live deployment
@@ -37,7 +37,7 @@ npm install
 npm run demo
 ```
 
-The demo prints the complete agent path: unpaid request → `402 Payment Required` → paid quote → KeeperHub handoff.
+The demo prints the complete agent path: unpaid request → `402 Payment Required` → paid cbBTC quote → KeeperHub handoff preview.
 
 Manual checks:
 
@@ -45,10 +45,10 @@ Manual checks:
 curl https://agentpay-router-zeta.vercel.app/health
 curl https://agentpay-router-zeta.vercel.app/openapi.json
 curl -i 'https://agentpay-router-zeta.vercel.app/quote?sell=USDC&buy=0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf&amount=100'
-curl -H 'x-payment: demo-paid' 'https://agentpay-router-zeta.vercel.app/quote?sell=USDC&buy=CBBTC&amount=100'
+QUOTE=$(curl -s -H 'x-payment: demo-paid' 'https://agentpay-router-zeta.vercel.app/quote?sell=USDC&buy=CBBTC&amount=100')
 curl -X POST https://agentpay-router-zeta.vercel.app/keeperhub/prepare-execution \
   -H 'content-type: application/json' \
-  -d '{"wallet":"0x0000000000000000000000000000000000000000","quoteRequest":{"sell":"USDC","buy":"CBBTC","amount":100},"policy":{"maxUsd":5000,"maxSlippageBps":100}}'
+  -d "{\"wallet\":\"0x0000000000000000000000000000000000000000\",\"quote\":$QUOTE,\"policy\":{\"maxUsd\":5000,\"maxSlippageBps\":100}}"
 ```
 
 ## API
@@ -69,31 +69,59 @@ Without payment it returns `402` with a `Payment-Required` header. In demo mode,
 
 ### `POST /keeperhub/prepare-execution`
 
+The handoff endpoint intentionally consumes the paid quote object returned by `/quote`. It does not accept a raw `quoteRequest`, because that would bypass the paid quote endpoint.
+
 ```json
 {
   "wallet": "0x0000000000000000000000000000000000000000",
-  "quoteRequest": { "sell": "USDC", "buy": "WETH", "amount": 1 },
-  "policy": { "maxUsd": 10, "maxSlippageBps": 100 }
+  "quote": {
+    "payment": { "status": "settled", "mode": "demo" },
+    "id": "quote_example",
+    "chainId": 8453,
+    "sell": "USDC",
+    "buy": "CBBTC",
+    "amount": "100",
+    "quote": {
+      "estimatedOut": "0.0012",
+      "executionPrice": "0.00001200 CBBTC / USDC",
+      "source": "DexScreener live Base CBBTC/USDC market data"
+    },
+    "route": [{ "dex": "aerodrome", "pair": "0x4e962BB3889Bf030368F56810A9c96B83CB3E778" }],
+    "timestamp": "2026-05-02T18:00:00.000Z"
+  },
+  "policy": { "maxUsd": 5000, "maxSlippageBps": 100 }
 }
 ```
 
 Returns:
-- quote
-- deterministic policy checks
-- KeeperHub direct/workflow payload preview
-- audit JSON path
+- paid quote
+- deterministic `policyChecks`
+- KeeperHub handoff preview
+- audit JSON path plus inline `audit.summary`
+
+## What is real vs demo mode
+
+Real:
+- Hono API deployed on Vercel.
+- Live Base cbBTC market data.
+- HTTP `402 Payment Required` behavior for unpaid requests.
+- Handoff requires a paid quote object, not a free quote request.
+- Policy checks before KeeperHub handoff preview.
+- Audit summary returned inline.
+- Machine-readable OpenAPI route at `/openapi.json`.
+- Public repo with no VPS IPs, private paths, keys, or credentials.
+
+Demo-mode for reproducible judging:
+- Payment settlement defaults to `AGENTPAY_PAYMENT_MODE=demo`.
+- Demo payment is represented by `x-payment: demo-paid` so judges can run the flow without funding a wallet.
+
+Scaffolded upgrade path:
+- Real x402 packages are wired behind `AGENTPAY_PAYMENT_MODE=real`.
+- Live KeeperHub execution is intentionally not enabled by default; the app stops at a safe, auditable handoff preview rather than pretending a hackathon demo should hold signing keys.
 
 ## Why this matters
 
-The web's API economy assumes humans create accounts, manage keys, and pay subscriptions. Agents need something simpler: make an HTTP request, receive a price, pay, and continue. x402 gives HTTP-native payments; KeeperHub gives a clean execution handoff.
-
-## Security / public repo hygiene
-
-- No VPS IPs are used in the app or docs.
-- No private keys or API keys are committed.
-- `.env.example` contains placeholders only.
-- Live KeeperHub execution is deliberately gated behind `KH_API_KEY`; the default is a safe handoff.
-- Demo payment mode is explicit and isolated for hackathon recording.
+The web's API economy assumes humans create accounts, manage keys, and pay subscriptions. Agents need something simpler: make an HTTP request, receive a price, pay, and continue. x402 gives HTTP-native payments; KeeperHub gives a clean execution boundary.
 
 ## Submission framing
 

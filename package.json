@@ -1,7 +1,7 @@
 {
   "name": "agentpay-router",
   "version": "0.1.0",
-  "description": "x402-style paid HTTP gateway for agent market quotes and KeeperHub execution handoffs.",
+  "description": "x402-style paid HTTP gateway for agent market quotes and KeeperHub handoff previews.",
   "type": "module",
   "bin": {
     "agentpay": "./dist/src/cli.js"

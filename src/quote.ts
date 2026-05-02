@@ -3,29 +3,49 @@ import { BASE_CHAIN_ID, normalizeToken, TOKENS, type TokenSymbol } from './token
 
 export const quoteRequestSchema = z.object({
   sell: z.string().default('USDC').transform(normalizeToken),
-  buy: z.string().default('WETH').transform(normalizeToken),
+  buy: z.string().default('CBBTC').transform(normalizeToken),
   amount: z.coerce.number().positive().max(10_000).default(1),
   chainId: z.coerce.number().default(BASE_CHAIN_ID),
 });
 
 export type QuoteRequest = z.infer<typeof quoteRequestSchema>;
 
-export type QuoteResponse = {
-  id: string;
-  chainId: number;
-  sell: TokenSymbol;
-  buy: TokenSymbol;
-  amount: string;
-  quote: {
-    estimatedOut: string;
-    executionPrice: string;
-    source: string;
-    pairAddress?: string;
-    liquidityUsd?: number;
-  };
-  route: Array<{ dex: string; pair: string }>;
-  timestamp: string;
-};
+export const routeLegSchema = z.object({
+  dex: z.string().min(1),
+  pair: z.string().min(1),
+});
+
+export const quoteResponseSchema = z
+  .object({
+    id: z.string().regex(/^quote_[A-Za-z0-9_-]+$/),
+    chainId: z.literal(BASE_CHAIN_ID),
+    sell: z.enum(['USDC', 'WETH', 'CBBTC']),
+    buy: z.enum(['USDC', 'WETH', 'CBBTC']),
+    amount: z.string().refine((value) => Number(value) > 0, 'amount must be positive'),
+    quote: z.object({
+      estimatedOut: z.string().refine((value) => Number(value) > 0, 'estimatedOut must be positive'),
+      executionPrice: z.string().min(1),
+      source: z.string().min(1),
+      pairAddress: z.string().optional(),
+      liquidityUsd: z.number().optional(),
+    }),
+    route: z.array(routeLegSchema).min(1),
+    timestamp: z.string().datetime(),
+  })
+  .passthrough();
+
+export const paidQuoteResponseSchema = quoteResponseSchema
+  .extend({
+    payment: z
+      .object({
+        status: z.literal('settled'),
+      })
+      .passthrough(),
+  })
+  .passthrough();
+
+export type QuoteResponse = z.infer<typeof quoteResponseSchema>;
+export type PaidQuoteResponse = z.infer<typeof paidQuoteResponseSchema>;
 
 type DexPair = {
   chainId: string;

@@ -33,7 +33,7 @@ app.get('/quote', createQuotePaymentMiddleware(), async (c) => {
   try {
     const quote = await getLiveQuote({
       sell: c.req.query('sell') ?? 'USDC',
-      buy: c.req.query('buy') ?? 'WETH',
+      buy: c.req.query('buy') ?? 'CBBTC',
       amount: c.req.query('amount') ?? '1',
       chainId: c.req.query('chainId') ?? '8453',
     });

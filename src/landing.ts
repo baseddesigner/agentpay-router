@@ -9,7 +9,7 @@ export function landingPage() {
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AgentPay Router — paid HTTP rails for agents</title>
-  <meta name="description" content="An x402-style paid HTTP gateway for agent market quotes and KeeperHub execution handoffs." />
+  <meta name="description" content="An x402-style paid HTTP gateway for agent market quotes and KeeperHub handoff previews." />
   <style>
     :root {
       --background: 20 14% 4%;
@@ -58,6 +58,8 @@ export function landingPage() {
     pre { margin: 0; padding: 22px; overflow: auto; color: #f8fafc; font: 13px/1.75 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
     .accent { color: hsl(var(--primary)); }
     .grid { display: grid; gap: 16px; grid-template-columns: repeat(3, 1fr); margin: 36px 0; }
+    .truth { display: grid; gap: 16px; grid-template-columns: repeat(3, 1fr); margin: 18px 0; }
+    .truth .feature { min-height: 150px; }
     .feature { padding: 22px; }
     .feature h3, .section h2 { margin: 0 0 10px; letter-spacing: -.035em; }
     .feature p, .section p { margin: 0; color: hsl(var(--muted-foreground)); line-height: 1.6; }
@@ -112,13 +114,22 @@ payment-required: eyJ4NDAyVmVyc2lvbiI...
 
     <section class="grid">
       <article class="card feature"><h3>HTTP-native payment</h3><p>Unpaid requests receive a machine-readable 402 challenge. Demo mode accepts an explicit payment header for reproducible judging.</p></article>
-      <article class="card feature"><h3>Live market quote</h3><p>Paid requests return real Base quotes like USDC → cbBTC using the cbBTC contract address, not a fake JSON toy response.</p></article>
-      <article class="card feature"><h3>Execution handoff</h3><p>KeeperHub payload previews include policy checks, route data, token addresses, and an audit artifact.</p></article>
+      <article class="card feature"><h3>Live market quote</h3><p>Paid requests return real Base market quotes like USDC → cbBTC using the cbBTC contract address, not a fake JSON toy response.</p></article>
+      <article class="card feature"><h3>Handoff preview</h3><p>KeeperHub payload previews include policy checks, route data, token addresses, and an inline audit summary.</p></article>
+    </section>
+
+    <section class="card section">
+      <h2>What is real vs demo mode.</h2>
+      <div class="truth">
+        <article class="card feature"><h3>Real</h3><p>Vercel API, live Base cbBTC market data, HTTP 402 challenge, strict paid quote handoff, policy checks, OpenAPI, and audit summaries.</p></article>
+        <article class="card feature"><h3>Demo</h3><p>Settlement uses <code>x-payment: demo-paid</code> so judges can run the full flow without funding a wallet. No hidden keys, no fake balance dance.</p></article>
+        <article class="card feature"><h3>Next</h3><p>Switch <code>AGENTPAY_PAYMENT_MODE=real</code>, set a real pay-to wallet, and wire KeeperHub execution only after signing boundaries are production-safe.</p></article>
+      </div>
     </section>
 
     <section id="flow" class="card section">
-      <h2>One request becomes an execution-ready handoff.</h2>
-      <p>The hackathon demo keeps the path narrow on purpose: make payment legible, keep secrets out of the public repo, and avoid pretending a demo should hold trading keys. The visible example uses Base cbBTC at <code>0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf</code>.</p>
+      <h2>One paid quote becomes a KeeperHub handoff preview.</h2>
+      <p>The hackathon demo keeps the path narrow on purpose: make payment legible, keep secrets out of the public repo, and avoid pretending a demo should hold trading keys. The visible example uses Base cbBTC at <code>0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf</code>; the handoff consumes the paid quote returned by <code>/quote</code> instead of fetching free data again.</p>
       <div class="flow">
         <div class="step"><span>01</span>Agent asks for quote</div>
         <div class="step"><span>02</span>Router returns HTTP 402</div>
@@ -139,13 +150,13 @@ payment-required: eyJ4NDAyVmVyc2lvbiI...
     </section>
     <section id="examples" class="card section">
       <h2>Examples agents can copy.</h2>
-      <p>Three concrete calls cover the full demo narrative: unpaid request, paid quote, and KeeperHub execution handoff.</p>
+      <p>Three concrete calls cover the full demo narrative: unpaid request, paid quote, and KeeperHub handoff preview. The POST uses the paid quote object from the second call.</p>
       <br />
       <div class="command"><div class="code">GET /quote → 402 Payment Required</div><button class="copy" data-copy="curl -i '${apiBase}/quote?sell=USDC&buy=0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf&amount=100'">Copy</button></div>
       <br />
       <div class="command"><div class="code">GET /quote with x-payment → live Base cbBTC quote</div><button class="copy" data-copy="curl -H 'x-payment: demo-paid' '${apiBase}/quote?sell=USDC&buy=CBBTC&amount=100'">Copy</button></div>
       <br />
-      <div class="command"><div class="code">POST /keeperhub/prepare-execution → policy-checked cbBTC handoff</div><button class="copy" data-copy='curl -X POST ${apiBase}/keeperhub/prepare-execution -H "content-type: application/json" -d "{\"wallet\":\"0x0000000000000000000000000000000000000000\",\"quoteRequest\":{\"sell\":\"USDC\",\"buy\":\"CBBTC\",\"amount\":100},\"policy\":{\"maxUsd\":5000,\"maxSlippageBps\":100}}"'>Copy</button></div>
+      <div class="command"><div class="code">POST /keeperhub/prepare-execution → consumes paid quote, returns policy-checked cbBTC handoff</div><button class="copy" data-copy='QUOTE=$(curl -s -H "x-payment: demo-paid" "${apiBase}/quote?sell=USDC&buy=CBBTC&amount=100"); curl -X POST ${apiBase}/keeperhub/prepare-execution -H "content-type: application/json" -d "{\"wallet\":\"0x0000000000000000000000000000000000000000\",\"quote\":$QUOTE,\"policy\":{\"maxUsd\":5000,\"maxSlippageBps\":100}}"'>Copy</button></div>
     </section>
   </main>
   <footer class="container">Built for OpenAgents. Small surface area, honest demo mode, clean upgrade path to live x402 settlement.</footer>

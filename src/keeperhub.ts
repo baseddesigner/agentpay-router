@@ -1,19 +1,19 @@
 import { z } from 'zod';
-import { getLiveQuote, tokenAddress, type QuoteResponse } from './quote.js';
+import { paidQuoteResponseSchema, tokenAddress, type QuoteResponse } from './quote.js';
 import { evaluatePolicy } from './policy.js';
 
-export const prepareExecutionSchema = z.object({
-  wallet: z.string().regex(/^0x[a-fA-F0-9]{40}$/).default('0x0000000000000000000000000000000000000000'),
-  quote: z.any().optional(),
-  quoteRequest: z
-    .object({ sell: z.string().default('USDC'), buy: z.string().default('WETH'), amount: z.coerce.number().positive().default(1), chainId: z.coerce.number().default(8453) })
-    .optional(),
-  policy: z.any().optional(),
-});
+export const prepareExecutionSchema = z
+  .object({
+    wallet: z.string().regex(/^0x[a-fA-F0-9]{40}$/).default('0x0000000000000000000000000000000000000000'),
+    quote: paidQuoteResponseSchema,
+    quoteRequest: z.never({ error: 'Handoff requires the paid quote returned by /quote; quoteRequest would bypass payment.' }).optional(),
+    policy: z.any().optional(),
+  })
+  .strict();
 
 export async function prepareKeeperHubExecution(input: unknown) {
   const parsed = prepareExecutionSchema.parse(input ?? {});
-  const quote = (parsed.quote as QuoteResponse | undefined) ?? (await getLiveQuote(parsed.quoteRequest ?? {}));
+  const quote = parsed.quote as QuoteResponse;
   const policyResult = evaluatePolicy(quote, parsed.policy ?? {});
   const slippageBps = policyResult.policy.maxSlippageBps;
 
@@ -26,7 +26,7 @@ export async function prepareKeeperHubExecution(input: unknown) {
     estimatedAmountOut: quote.quote.estimatedOut,
     maxSlippageBps: slippageBps,
     route: quote.route,
-    note: 'Execution-ready handoff. Live KeeperHub submission is intentionally gated behind KH_API_KEY and --execute.',
+    note: 'KeeperHub handoff preview only. Live submission/signing stays gated behind explicit KeeperHub credentials and execution configuration.',
   };
 
   return {
@@ -34,7 +34,7 @@ export async function prepareKeeperHubExecution(input: unknown) {
     quote,
     policyChecks: policyResult.checks,
     keeperhub: {
-      mode: process.env.KH_API_KEY ? 'workflow_or_direct_execution_available' : 'handoff_only_no_api_key',
+      mode: process.env.KH_API_KEY ? 'handoff_preview_credentials_available' : 'handoff_preview_no_api_key',
       endpoint: process.env.KH_WORKFLOW_ID
         ? `https://app.keeperhub.com/api/workflows/${process.env.KH_WORKFLOW_ID}/webhook`
         : 'https://app.keeperhub.com/api/execute/contract-call',

@@ -30,7 +30,7 @@ const paidQuote = await printStep(
 );
 
 await printStep(
-  '4. KeeperHub execution-ready handoff + audit',
+  '4. KeeperHub handoff preview + audit summary',
   await request('/keeperhub/prepare-execution', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
