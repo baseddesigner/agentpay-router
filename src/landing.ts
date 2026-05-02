@@ -139,11 +139,31 @@ payment-required: eyJ4NDAyVmVyc2lvbiI...
   </main>
   <footer class="container">Built for OpenAgents. Small surface area, honest demo mode, clean upgrade path to live x402 settlement.</footer>
   <script>
+    async function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+      const area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand('copy');
+      area.remove();
+    }
+
     for (const button of document.querySelectorAll('.copy')) {
       button.addEventListener('click', async () => {
-        await navigator.clipboard.writeText(button.dataset.copy || '');
         const label = button.textContent;
-        button.textContent = 'Copied';
+        try {
+          await copyText(button.dataset.copy || '');
+          button.textContent = 'Copied';
+        } catch (_error) {
+          button.textContent = 'Copy failed';
+        }
         setTimeout(() => { button.textContent = label; }, 1200);
       });
     }
